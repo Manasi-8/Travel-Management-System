@@ -1,0 +1,115 @@
+
+
+
+CREATE TABLE Users (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role ENUM('Admin', 'User') DEFAULT 'User',
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE Packages (
+    PackageID INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    Description TEXT,
+    Destination VARCHAR(100),
+    Duration INT,  -- in days
+    Price DECIMAL(10, 2),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE Reviews (
+    ReviewID INT AUTO_INCREMENT PRIMARY KEY,
+    PackageID INT,
+    UserID INT,
+    Rating INT CHECK (Rating BETWEEN 1 AND 5),
+    Comment TEXT,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (PackageID) REFERENCES Packages(PackageID),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+
+CREATE TABLE Bookings (
+    BookingID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    PackageID INT,
+    BookingDate DATE,
+    NumberOfPeople INT,
+    TotalPrice DECIMAL(10, 2),
+    PaymentStatus ENUM('Pending', 'Completed', 'Cancelled') DEFAULT 'Pending',
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (PackageID) REFERENCES Packages(PackageID)
+);
+
+
+
+CREATE TABLE Payment (
+    PaymentID INT AUTO_INCREMENT PRIMARY KEY,
+    BookingID INT,
+    PaymentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Amount DECIMAL(10, 2),
+    PaymentMethod ENUM('CreditCard', 'DebitCard', 'PayPal', 'BankTransfer'),
+    TransactionID VARCHAR(255),
+    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID)
+);
+
+
+
+
+
+CREATE TABLE PackageDetails (
+    DetailID INT AUTO_INCREMENT PRIMARY KEY,
+    PackageID INT,
+    Day INT,
+    Itinerary TEXT,
+    Inclusion TEXT,
+    FOREIGN KEY (PackageID) REFERENCES Packages(PackageID)
+);
+
+
+
+
+//values to be inserted(dummy)
+INSERT INTO Users (Username, Email, PasswordHash, Role)
+VALUES ('admin', 'admin@example.com', 'hashed_password', 'Admin'),
+       ('john_doe', 'john@example.com', 'hashed_password', 'User');
+
+
+
+
+INSERT INTO Packages (Title, Description, Destination, Duration, Price)
+VALUES ('Hawaii Adventure', 'Explore the beautiful islands of Hawaii', 'Hawaii', 7, 1500.00),
+       ('European Tour', 'Visit multiple countries in Europe', 'Europe', 14, 3000.00);
+
+
+
+
+INSERT INTO Reviews (PackageID, UserID, Rating, Comment)
+VALUES (1, 2, 5, 'Amazing experience! Highly recommend.'),
+       (2, 2, 4, 'Great trip but a bit rushed.');
+
+
+
+
+INSERT INTO Bookings (UserID, PackageID, BookingDate, NumberOfPeople, TotalPrice, PaymentStatus)
+VALUES (2, 1, '2024-07-01', 2, 3000.00, 'Completed');
+
+
+
+INSERT INTO Payment (BookingID, Amount, PaymentMethod, TransactionID)
+VALUES (1, 3000.00, 'CreditCard', 'txn_1234567890');
+
+
+
+INSERT INTO PackageDetails (PackageID, Day, Itinerary, Inclusion)
+VALUES (1, 1, 'Arrival in Hawaii and check-in', 'Airport transfer, Welcome drink'),
+       (1, 2, 'Beach day and snorkeling', 'Breakfast, Snorkeling gear'),
+       (2, 1, 'Arrival in Paris and city tour', 'Airport transfer, City tour guide'),
+       (2, 2, 'Travel to Amsterdam and canal cruise', 'Train ticket, Canal cruise ticket');
+
